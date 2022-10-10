@@ -225,6 +225,7 @@ class ReplWithStandardResolverTests : AbstractSingleReplTest() {
     }
 
     @Test
+    @Disabled("Partial resolution is not merged to 1.7.20")
     fun `transitive sources are resolved even they are lacking for some of the dependencies in the graph`() {
         eval(
             """
