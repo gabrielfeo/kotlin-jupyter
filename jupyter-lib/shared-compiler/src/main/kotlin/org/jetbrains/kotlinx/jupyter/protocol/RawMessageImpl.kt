@@ -5,6 +5,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
+import org.jetbrains.kotlinx.jupyter.api.InMemoryResult
 import org.jetbrains.kotlinx.jupyter.api.libraries.RawMessage
 import java.util.Base64
 
@@ -14,6 +15,7 @@ data class RawMessageImpl(
     override val parentHeader: JsonObject?,
     override val metadata: JsonObject?,
     override val content: JsonElement,
+    override val inMemoryResult: InMemoryResult?
 ) : RawMessage {
     override fun toString(): String = "msg[${id.joinToString { Base64.getEncoder().encodeToString(it) }}] $data"
 }

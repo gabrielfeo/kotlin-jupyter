@@ -135,6 +135,7 @@ class SocketWrapper(
             parentHeader.parseJson()?.jsonObject,
             metadata.parseJson()?.jsonObject,
             content.parseJson().orEmptyObject(),
+            null // In-memory results are never sent from the client to the kernel. Only the other way.
         )
     }
 

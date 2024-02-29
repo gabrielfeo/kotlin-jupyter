@@ -6,20 +6,14 @@ import org.jetbrains.kotlinx.jupyter.api.KernelLoggerFactory
 import org.jetbrains.kotlinx.jupyter.api.arrayRenderer
 import org.jetbrains.kotlinx.jupyter.api.bufferedImageRenderer
 import org.jetbrains.kotlinx.jupyter.api.getLogger
+ import org.jetbrains.kotlinx.jupyter.api.swingJFrameInMemoryRenderer
+import org.jetbrains.kotlinx.jupyter.api.swingJPanelInMemoryRenderer
 import org.jetbrains.kotlinx.jupyter.codegen.ResultsRenderersProcessor
 import org.jetbrains.kotlinx.jupyter.common.LibraryDescriptorsManager
 import org.jetbrains.kotlinx.jupyter.compiler.util.CodeInterval
 import org.jetbrains.kotlinx.jupyter.compiler.util.SourceCodeImpl
 import org.jetbrains.kotlinx.jupyter.config.catchAll
-import org.jetbrains.kotlinx.jupyter.libraries.DefaultLibraryDescriptorGlobalOptions
-import org.jetbrains.kotlinx.jupyter.libraries.LibraryDescriptor
-import org.jetbrains.kotlinx.jupyter.libraries.LibraryDescriptorGlobalOptions
-import org.jetbrains.kotlinx.jupyter.libraries.LibraryDescriptorsProvider
-import org.jetbrains.kotlinx.jupyter.libraries.LibraryReferenceParser
-import org.jetbrains.kotlinx.jupyter.libraries.LibraryResolver
-import org.jetbrains.kotlinx.jupyter.libraries.ResourceLibraryDescriptorsProvider
-import org.jetbrains.kotlinx.jupyter.libraries.parseLibraryDescriptor
-import org.jetbrains.kotlinx.jupyter.libraries.parseLibraryDescriptorGlobalOptions
+import org.jetbrains.kotlinx.jupyter.libraries.*
 import org.jetbrains.kotlinx.jupyter.util.createCachedFun
 import java.io.Closeable
 import java.io.File
@@ -87,6 +81,8 @@ fun withPath(
 fun ResultsRenderersProcessor.registerDefaultRenderers() {
     register(bufferedImageRenderer)
     register(arrayRenderer)
+    register(swingJFrameInMemoryRenderer)
+    register(swingJPanelInMemoryRenderer)
 }
 
 /**

@@ -5,20 +5,30 @@ import kotlinx.serialization.json.buildJsonObject
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.lang.reflect.Array
-import java.util.Base64
+import java.util.*
 import javax.imageio.ImageIO
+import javax.swing.JFrame
+import javax.swing.JPanel
 
-val bufferedImageRenderer =
+/**
+ * Convert a buffered image to a PNG file encoded as a Base64 Json string.
+ */
+fun encodeBufferedImage(image: BufferedImage): JsonPrimitive {
+    val format = "png"
+    val stream = ByteArrayOutputStream()
+    ImageIO.write(image, format, stream)
+    val data = stream.toByteArray()
+    val encoder = Base64.getEncoder()
+    val encodedData = encoder.encodeToString(data)
+    return JsonPrimitive(encodedData)
+}
+
+val bufferedImageRenderer: RendererFieldHandler =
     createRenderer<BufferedImage> {
-        val format = "png"
-        val stream = ByteArrayOutputStream()
-        ImageIO.write(it, format, stream)
-        val data = stream.toByteArray()
-        val encoder = Base64.getEncoder()
-        val encodedData = encoder.encodeToString(data)
+        val encodedData: JsonPrimitive = encodeBufferedImage(it)
         MimeTypedResultEx(
             buildJsonObject {
-                put(MimeTypes.PNG, JsonPrimitive(encodedData))
+                put(MimeTypes.PNG, encodedData)
                 put(MimeTypes.PLAIN_TEXT, JsonPrimitive("${it::class}: ${it.width}x${it.height} px"))
             },
             metadataModifiers = listOf(),
@@ -26,7 +36,7 @@ val bufferedImageRenderer =
     }
 
 /**
- * Renders any array (primitive or non-primitive) into list
+ * Renders any array (primitive or non-primitive) into a list.
  */
 val arrayRenderer =
     object : RendererHandler {
@@ -44,10 +54,27 @@ val arrayRenderer =
         }
 
         override val execution = ResultHandlerExecution { _, result -> FieldValue(toListRuntime(result.value!!), null) }
-
         override fun replaceVariables(mapping: Map<String, String>) = this
 
         override fun toString(): String {
             return "Default renderer of arrays: renders them to lists"
         }
+    }
+
+/**
+ * Renders a Swing [JFrame] in-memory, but also provides a screenshot of the UI as
+ * fallback data.
+ */
+val swingJFrameInMemoryRenderer: RendererFieldHandler =
+    createRenderer<JFrame> { frame: JFrame ->
+        SWING(frame)
+    }
+
+/**
+ * Renders a Swing [JPanel] in-memory, but also provides a screenshot of the UI as
+ * fallback data.
+ */
+val swingJPanelInMemoryRenderer: RendererFieldHandler =
+    createRenderer<JPanel> { panel: JPanel ->
+        SWING(panel)
     }

@@ -1,6 +1,7 @@
 package org.jetbrains.kotlinx.jupyter.messaging
 
 import kotlinx.serialization.json.Json
+import org.jetbrains.kotlinx.jupyter.api.InMemoryMimeTypedResult
 import org.jetbrains.kotlinx.jupyter.api.libraries.ExecutionHost
 import org.jetbrains.kotlinx.jupyter.api.setDisplayId
 import org.jetbrains.kotlinx.jupyter.api.withId
@@ -34,11 +35,16 @@ class SocketDisplayHandler(
         notebook.currentCell?.addDisplay(display)
 
         val content =
-            DisplayDataResponse(
-                json["data"],
-                json["metadata"],
-                json["transient"],
-            )
+			DisplayDataResponse(
+            	json["data"],
+            	json["metadata"],
+            	json["transient"],
+            	if (display is InMemoryMimeTypedResult) {
+                	display.inMemoryOutput
+            	} else {
+                	null
+            	}
+        	)
         sendMessage(MessageType.DISPLAY_DATA, content)
     }
 
@@ -60,11 +66,16 @@ class SocketDisplayHandler(
             ?: throw RuntimeException("`update_display_data` response should provide an id of data being updated")
 
         val content =
-            DisplayDataResponse(
-                json["data"],
-                json["metadata"],
-                json["transient"],
-            )
+			DisplayDataResponse(
+            	json["data"],
+            	json["metadata"],
+            	json["transient"],
+            	if (display is InMemoryMimeTypedResult) {
+                	display.inMemoryOutput
+            	} else {
+                	null
+            	}
+        	)
         sendMessage(MessageType.UPDATE_DISPLAY_DATA, content)
     }
 }
