@@ -7,7 +7,7 @@ import org.jetbrains.kotlinx.jupyter.api.arrayRenderer
 import org.jetbrains.kotlinx.jupyter.api.bufferedImageRenderer
 import org.jetbrains.kotlinx.jupyter.api.getLogger
  import org.jetbrains.kotlinx.jupyter.api.swingJFrameInMemoryRenderer
-import org.jetbrains.kotlinx.jupyter.api.swingJPanelInMemoryRenderer
+import org.jetbrains.kotlinx.jupyter.api.swingJComponentInMemoryRenderer
 import org.jetbrains.kotlinx.jupyter.codegen.ResultsRenderersProcessor
 import org.jetbrains.kotlinx.jupyter.common.LibraryDescriptorsManager
 import org.jetbrains.kotlinx.jupyter.compiler.util.CodeInterval
@@ -82,7 +82,7 @@ fun ResultsRenderersProcessor.registerDefaultRenderers() {
     register(bufferedImageRenderer)
     register(arrayRenderer)
     register(swingJFrameInMemoryRenderer)
-    register(swingJPanelInMemoryRenderer)
+    register(swingJComponentInMemoryRenderer)
 }
 
 /**
