@@ -23,6 +23,7 @@ import org.jetbrains.kotlinx.jupyter.repl.ReplOptions
 import org.jetbrains.kotlinx.jupyter.repl.ReplRuntimeProperties
 import org.jetbrains.kotlinx.jupyter.repl.notebook.MutableNotebook
 import java.io.File
+import org.jetbrains.kotlinx.jupyter.repl.embedded.InMemoryReplResultsHolder
 
 interface ReplComponentsProvider {
     val loggerFactory: KernelLoggerFactory
@@ -51,4 +52,5 @@ interface ReplComponentsProvider {
     val sessionOptions: SessionOptions
     val magicsHandler: LibrariesAwareMagicsHandler?
     val libraryReferenceParser: LibraryReferenceParser
+    val inMemoryReplResultsHolder: InMemoryReplResultsHolder
 }

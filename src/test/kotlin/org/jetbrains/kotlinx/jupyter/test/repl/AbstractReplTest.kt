@@ -27,6 +27,8 @@ import org.jetbrains.kotlinx.jupyter.test.testLoggerFactory
 import org.jetbrains.kotlinx.jupyter.test.testRepositories
 import org.jetbrains.kotlinx.jupyter.test.toLibraries
 import java.io.File
+import org.jetbrains.kotlinx.jupyter.repl.embedded.DefaultInMemoryReplResultsHolder
+import org.jetbrains.kotlinx.jupyter.repl.embedded.NoOpInMemoryReplResultsHolder
 
 abstract class AbstractReplTest {
     protected val httpUtil = createLibraryHttpUtil(testLoggerFactory)
@@ -93,29 +95,20 @@ abstract class AbstractReplTest {
             )
         val myHomeDir = homeDir
         val factory =
-            object : ReplComponentsProviderBase() {
-                override fun provideResolutionInfoProvider() = standardResolutionInfoProvider
-
-                override fun provideScriptClasspath() = classpath
-
-                override fun provideHomeDir() = myHomeDir
-
-                override fun provideMavenRepositories() = testRepositories
-
-                override fun provideLibraryResolver() = resolver
-
-                override fun provideRuntimeProperties() = standardResolverRuntimeProperties
-
-                override fun provideScriptReceivers() = emptyList<Any>()
-
-                override fun provideIsEmbedded() = false
-
-                override fun provideDisplayHandler() = displayHandlerProvider(notebook)
-
-                override fun provideCommunicationFacility() = CommunicationFacilityMock
-
-                override fun provideDebugPort(): Int? = null
-            }
+			object : ReplComponentsProviderBase() {
+	            override fun provideResolutionInfoProvider() = standardResolutionInfoProvider
+    	        override fun provideScriptClasspath() = classpath
+        	    override fun provideHomeDir() = myHomeDir
+            	override fun provideMavenRepositories() = testRepositories
+            	override fun provideLibraryResolver() = resolver
+            	override fun provideRuntimeProperties() = standardResolverRuntimeProperties
+            	override fun provideScriptReceivers() = emptyList<Any>()
+            	override fun provideIsEmbedded() = false
+            	override fun provideDisplayHandler() = displayHandlerProvider(notebook)
+            	override fun provideCommunicationFacility() = CommunicationFacilityMock
+            	override fun provideDebugPort(): Int? = null
+            	override fun provideInMemoryReplResultsHolder() = NoOpInMemoryReplResultsHolder()
+        	}
         return factory.createRepl()
     }
 
@@ -126,6 +119,7 @@ abstract class AbstractReplTest {
             scriptClasspath = embeddedClasspath,
             isEmbedded = true,
             displayHandler = displayHandler,
+            inMemoryReplResultsHolder = DefaultInMemoryReplResultsHolder()
         )
     }
 

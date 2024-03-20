@@ -15,7 +15,6 @@ data class RawMessageImpl(
     override val parentHeader: JsonObject?,
     override val metadata: JsonObject?,
     override val content: JsonElement,
-    override val inMemoryResult: InMemoryResult?
 ) : RawMessage {
     override fun toString(): String = "msg[${id.joinToString { Base64.getEncoder().encodeToString(it) }}] $data"
 }

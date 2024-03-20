@@ -80,10 +80,9 @@ fun JupyterCommunicationFacility.sendExecuteResult(
             MessageType.EXECUTE_RESULT,
             content =
 				ExecutionResultMessage(
-                	executionCount = requestCount,
-                	data = resultJson["data"]!!,
-                	metadata = resultJson["metadata"]!!,
-                	inMemoryOutput = result.inMemoryOutput
+	                executionCount = requestCount,
+    	            data = resultJson["data"]!!,
+        	        metadata = resultJson["metadata"]!!,
             	),
         ),
     )

@@ -22,7 +22,6 @@ import org.jetbrains.kotlinx.jupyter.util.escapeForIframe
 import java.util.concurrent.atomic.AtomicLong
 import javax.swing.JFrame
 import javax.swing.JComponent
-import kotlinx.serialization.json.jsonObject
 
 /**
  * Type alias for FQNs - fully qualified names of classes
@@ -50,7 +49,6 @@ interface Renderable {
 
 /**
  * Wrapper for in-memory results that also tracks its corresponding mime-type.
- * @see [DisplayResult.inMemoryOutput]
  */
 data class InMemoryResult(val mimeType: String, val result: Any?)
 
@@ -77,17 +75,6 @@ interface DisplayResult : Renderable {
 
     @Deprecated("Use full version instead", ReplaceWith("toJson(additionalMetadata, null)"))
     fun toJson(additionalMetadata: JsonObject = Json.EMPTY): JsonObject = toJson(additionalMetadata, null)
-
-    /**
-     * This field is only relevant when using the embedded server, as it is able to send display data without
-     * transforming it into JSON first.
-     *
-     * In those cases, the data found here is considered the primary data source and any data found in the standard
-     * JSON data is considered fallback data. I.e. it is only used when the in-memory output becomes unavailable,
-     * like after saving and restoring a notebook file.
-     */
-    val inMemoryOutput: InMemoryResult?
-        get() = null
 
     /**
      * Renders display result, generally should return `this`
@@ -179,10 +166,13 @@ fun JsonObject.containsDisplayId(id: String): Boolean {
  * no longer available. Like when saving the notebook to disk.
  */
 class InMemoryMimeTypedResult(
-    override val inMemoryOutput: InMemoryResult,
-    private val fallbackResult: Map<String, JsonPrimitive>,
-    id: String? = null,
-) : MimeTypedResultEx(Json.encodeToJsonElement(fallbackResult), id)
+    val inMemoryOutput: InMemoryResult,
+    val fallbackResult: Map<String, String>,
+) : DisplayResult {
+    override fun toJson(additionalMetadata: JsonObject, overrideId: String?): JsonObject {
+        throw UnsupportedOperationException("This method is not supported for in-memory values")
+    }
+}
 
 /**
  * Convenient implementation of [DisplayResult],
@@ -309,7 +299,7 @@ fun SWING(frame: JFrame): DisplayResult {
     return InMemoryMimeTypedResult(
         InMemoryResult(InMemoryMimeTypes.SWING, frame),
         mapOf(
-            MimeTypes.PNG to encodeBufferedImage(frame.takeScreenshot())
+            MimeTypes.PNG to encodeBufferedImage(frame.takeScreenshot()).content
         )
     )
 }
@@ -328,13 +318,13 @@ fun SWING(frame: JFrame): DisplayResult {
 fun SWING(component: JComponent): DisplayResult {
     val fallbackImage: BufferedImage? = component.takeScreenshot()
     val fallback = if (fallbackImage == null) {
-        MimeTypes.PLAIN_TEXT to JsonPrimitive(component.toString())
+        MimeTypes.PLAIN_TEXT to component.toString()
     } else {
-        MimeTypes.PNG to encodeBufferedImage(fallbackImage)
+        MimeTypes.PNG to encodeBufferedImage(fallbackImage).content
     }
     return InMemoryMimeTypedResult(
         InMemoryResult(InMemoryMimeTypes.SWING, component),
-        mapOf(fallback)
+        mapOf(fallback),
     )
 }
 

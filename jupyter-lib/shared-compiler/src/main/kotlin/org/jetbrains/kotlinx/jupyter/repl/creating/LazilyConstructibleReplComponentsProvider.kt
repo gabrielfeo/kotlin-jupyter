@@ -23,6 +23,7 @@ import org.jetbrains.kotlinx.jupyter.repl.ReplOptions
 import org.jetbrains.kotlinx.jupyter.repl.ReplRuntimeProperties
 import org.jetbrains.kotlinx.jupyter.repl.notebook.MutableNotebook
 import java.io.File
+import org.jetbrains.kotlinx.jupyter.repl.embedded.InMemoryReplResultsHolder
 
 interface LazilyConstructibleReplComponentsProvider : ReplComponentsProvider {
     fun provideLoggerFactory(): KernelLoggerFactory
@@ -76,4 +77,6 @@ interface LazilyConstructibleReplComponentsProvider : ReplComponentsProvider {
     fun provideMagicsHandler(): LibrariesAwareMagicsHandler?
 
     fun provideLibraryReferenceParser(): LibraryReferenceParser
+
+    fun provideInMemoryReplResultsHolder(): InMemoryReplResultsHolder
 }

@@ -31,6 +31,7 @@ import org.slf4j.Logger
 import java.io.File
 import kotlin.concurrent.thread
 import kotlin.script.experimental.jvm.util.classpathFromClassloader
+import org.jetbrains.kotlinx.jupyter.repl.embedded.DefaultInMemoryReplResultsHolder
 
 val iKotlinClass: Class<*> = object {}::class.java.enclosingClass
 
@@ -154,7 +155,7 @@ fun createMessageHandler(
     val executor: JupyterExecutor = JupyterExecutorImpl(loggerFactory)
 
     val commManager: CommManagerInternal = CommManagerImpl(communicationFacility)
-    val repl = DefaultReplComponentsProvider(replSettings, communicationFacility, commManager).createRepl()
+    val repl = DefaultReplComponentsProvider(replSettings, communicationFacility, commManager, DefaultInMemoryReplResultsHolder()).createRepl()
     return MessageHandlerImpl(loggerFactory, repl, commManager, messageFactoryProvider, socketManager, executor)
 }
 

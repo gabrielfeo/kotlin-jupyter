@@ -18,11 +18,13 @@ import org.jetbrains.kotlinx.jupyter.repl.ReplRuntimeProperties
 import org.jetbrains.kotlinx.jupyter.repl.config.DefaultReplSettings
 import org.jetbrains.kotlinx.jupyter.util.toUpperCaseAsciiOnly
 import java.io.File
+import org.jetbrains.kotlinx.jupyter.repl.embedded.InMemoryReplResultsHolder
 
 open class DefaultReplComponentsProvider(
     private val _settings: DefaultReplSettings,
     private val _communicationFacility: JupyterCommunicationFacility,
     private val _commManager: CommManager,
+    private val _inMemoryResultsHolder: InMemoryReplResultsHolder,
 ) : ReplComponentsProviderBase() {
     private val logger by lazy {
         loggerFactory.getLogger(this::class)
@@ -107,5 +109,13 @@ open class DefaultReplComponentsProvider(
 
     override fun provideLibraryReferenceParser(): LibraryReferenceParser {
         return httpUtil.libraryReferenceParser
+    }
+
+    override fun provideInMemoryReplResultsHolder(): InMemoryReplResultsHolder {
+        return _inMemoryResultsHolder
+    }
+
+    companion object {
+        private val LOG = logger<DefaultReplComponentsProvider>()
     }
 }

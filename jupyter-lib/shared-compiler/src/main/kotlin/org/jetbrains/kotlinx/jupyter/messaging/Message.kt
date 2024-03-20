@@ -42,7 +42,6 @@ fun Message.toRawMessage(): RawMessage {
         dataJson["parent_header"] as? JsonObject,
         dataJson["metadata"] as? JsonObject,
         dataJson["content"]!!,
-        data.inMemoryOutput
     )
 }
 
