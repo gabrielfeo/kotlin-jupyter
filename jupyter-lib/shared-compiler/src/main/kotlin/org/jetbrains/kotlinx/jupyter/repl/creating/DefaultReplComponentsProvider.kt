@@ -114,8 +114,4 @@ open class DefaultReplComponentsProvider(
     override fun provideInMemoryReplResultsHolder(): InMemoryReplResultsHolder {
         return _inMemoryResultsHolder
     }
-
-    companion object {
-        private val LOG = logger<DefaultReplComponentsProvider>()
-    }
 }

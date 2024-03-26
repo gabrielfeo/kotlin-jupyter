@@ -1,11 +1,30 @@
 package org.jetbrains.kotlinx.jupyter.repl.impl
 
+import java.io.Closeable
+import java.io.File
+import java.net.URLClassLoader
+import java.util.concurrent.atomic.AtomicReference
 import jupyter.kotlin.CompilerArgs
 import jupyter.kotlin.DependsOn
 import jupyter.kotlin.KotlinContext
 import jupyter.kotlin.Repository
 import jupyter.kotlin.ScriptTemplateWithDisplayHelpers
 import jupyter.kotlin.providers.UserHandlesProvider
+import kotlin.script.experimental.api.ResultWithDiagnostics
+import kotlin.script.experimental.api.ScriptCompilationConfiguration
+import kotlin.script.experimental.api.ScriptConfigurationRefinementContext
+import kotlin.script.experimental.api.ScriptEvaluationConfiguration
+import kotlin.script.experimental.api.asSuccess
+import kotlin.script.experimental.api.constructorArgs
+import kotlin.script.experimental.api.dependencies
+import kotlin.script.experimental.api.fileExtension
+import kotlin.script.experimental.api.implicitReceivers
+import kotlin.script.experimental.api.refineConfiguration
+import kotlin.script.experimental.api.with
+import kotlin.script.experimental.jvm.BasicJvmReplEvaluator
+import kotlin.script.experimental.jvm.JvmDependency
+import kotlin.script.experimental.jvm.baseClassLoader
+import kotlin.script.experimental.jvm.jvm
 import org.jetbrains.kotlin.config.KotlinCompilerVersion
 import org.jetbrains.kotlinx.jupyter.DebugUtilityProvider
 import org.jetbrains.kotlinx.jupyter.HomeDirLibraryDescriptorsProvider
@@ -13,9 +32,11 @@ import org.jetbrains.kotlinx.jupyter.LibraryDescriptorsByResolutionProvider
 import org.jetbrains.kotlinx.jupyter.LoggingManager
 import org.jetbrains.kotlinx.jupyter.api.Code
 import org.jetbrains.kotlinx.jupyter.api.ExecutionCallback
+import org.jetbrains.kotlinx.jupyter.api.InMemoryMimeTypedResult
 import org.jetbrains.kotlinx.jupyter.api.JupyterClientType
 import org.jetbrains.kotlinx.jupyter.api.KernelLoggerFactory
 import org.jetbrains.kotlinx.jupyter.api.KotlinKernelHost
+import org.jetbrains.kotlinx.jupyter.api.MimeTypedResult
 import org.jetbrains.kotlinx.jupyter.api.NullabilityEraser
 import org.jetbrains.kotlinx.jupyter.api.ProcessingPriority
 import org.jetbrains.kotlinx.jupyter.api.Renderable
@@ -90,6 +111,7 @@ import org.jetbrains.kotlinx.jupyter.repl.ReplOptions
 import org.jetbrains.kotlinx.jupyter.repl.ReplRuntimeProperties
 import org.jetbrains.kotlinx.jupyter.repl.SharedReplContext
 import org.jetbrains.kotlinx.jupyter.repl.ShutdownEvalResult
+import org.jetbrains.kotlinx.jupyter.repl.embedded.InMemoryReplResultsHolder
 import org.jetbrains.kotlinx.jupyter.repl.execution.AfterCellExecutionsProcessor
 import org.jetbrains.kotlinx.jupyter.repl.execution.BeforeCellExecutionsProcessor
 import org.jetbrains.kotlinx.jupyter.repl.execution.CellExecutor
@@ -105,28 +127,6 @@ import org.jetbrains.kotlinx.jupyter.repl.result.InternalMetadata
 import org.jetbrains.kotlinx.jupyter.repl.result.InternalMetadataImpl
 import org.jetbrains.kotlinx.jupyter.repl.result.InternalReplResult
 import org.jetbrains.kotlinx.jupyter.repl.result.SerializedCompiledScriptsData
-import java.io.Closeable
-import java.io.File
-import java.net.URLClassLoader
-import java.util.concurrent.atomic.AtomicReference
-import kotlin.script.experimental.api.ResultWithDiagnostics
-import kotlin.script.experimental.api.ScriptCompilationConfiguration
-import kotlin.script.experimental.api.ScriptConfigurationRefinementContext
-import kotlin.script.experimental.api.ScriptEvaluationConfiguration
-import kotlin.script.experimental.api.asSuccess
-import kotlin.script.experimental.api.constructorArgs
-import kotlin.script.experimental.api.dependencies
-import kotlin.script.experimental.api.fileExtension
-import kotlin.script.experimental.api.implicitReceivers
-import kotlin.script.experimental.api.refineConfiguration
-import kotlin.script.experimental.api.with
-import kotlin.script.experimental.jvm.BasicJvmReplEvaluator
-import kotlin.script.experimental.jvm.JvmDependency
-import kotlin.script.experimental.jvm.baseClassLoader
-import kotlin.script.experimental.jvm.jvm
-import org.jetbrains.kotlinx.jupyter.api.InMemoryMimeTypedResult
-import org.jetbrains.kotlinx.jupyter.api.MimeTypedResult
-import org.jetbrains.kotlinx.jupyter.repl.embedded.InMemoryReplResultsHolder
 
 class ReplForJupyterImpl(
     private val loggerFactory: KernelLoggerFactory,
@@ -427,22 +427,7 @@ class ReplForJupyterImpl(
             fun getMetadata() = calculateEvalMetadata(evalData.storeHistory, result.metadata)
             when (result) {
                 is InternalReplResult.Success -> {
-                   var rendered =
-                        result.internalResult.let { internalResult ->
-                            logger.catchAll {
-                                renderersProcessor.renderResult(executor, internalResult.result)
-                            }
-                        }?.let {
-                            logger.catchAll {
-                                if (it is Renderable) it.render(notebook) else it
-                            }
-                        }
-
-
-                    if (rendered is InMemoryMimeTypedResult) {
-                        rendered = transformInMemoryResults(rendered, evalData)
-                    }
-
+                    val rendered = renderResult(result, evalData)
                     val displayValue = logger.catchAll {
                         notebook.postRender(rendered)
                     }
@@ -492,6 +477,25 @@ class ReplForJupyterImpl(
         }
     }
 
+    private fun renderResult(
+        result: InternalReplResult.Success,
+        evalData: EvalRequestData,
+    ): Any? {
+        return result.internalResult.let { internalResult ->
+            logger.catchAll {
+                renderersProcessor.renderResult(executor, internalResult.result)
+            }
+        }?.let {
+            logger.catchAll {
+                if (it is Renderable) it.render(notebook) else it
+            }
+        }?.let {
+            logger.catchAll {
+                if (it is InMemoryMimeTypedResult) transformInMemoryResults(it, evalData) else it
+            }
+        }
+    }
+
     /**
      * If the render result is an in-memory value, we need to extract it from
      * the mimetype and put it into the `InMemoryReplResultsHolder`. Then we
@@ -504,10 +508,10 @@ class ReplForJupyterImpl(
     private fun transformInMemoryResults(rendered: InMemoryMimeTypedResult, evalData: EvalRequestData): MimeTypedResult {
         val id = evalData.jupyterId.toString()
         val inMemoryValue = rendered.inMemoryOutput.result
-        inMemoryReplResultsHolder.setReplResult(id, inMemoryValue) // TODO Can this be null here?
+        inMemoryReplResultsHolder.setReplResult(id, inMemoryValue)
         return MimeTypedResult(mimeData = rendered.fallbackResult + Pair(rendered.inMemoryOutput.mimeType, id))
     }
-
+    
     private fun calculateEvalMetadata(
         storeHistory: Boolean,
         internalMetadata: InternalMetadata,

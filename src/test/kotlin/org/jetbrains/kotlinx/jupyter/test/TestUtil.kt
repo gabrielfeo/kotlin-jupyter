@@ -3,7 +3,12 @@ package org.jetbrains.kotlinx.jupyter.test
 import io.kotest.assertions.fail
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeTypeOf
+import java.io.File
 import jupyter.kotlin.JavaRuntime
+import kotlin.reflect.KClass
+import kotlin.reflect.typeOf
+import kotlin.script.experimental.jvm.util.scriptCompilationClasspathFromContext
+import kotlin.test.assertEquals
 import org.jetbrains.kotlinx.jupyter.api.AfterCellExecutionCallback
 import org.jetbrains.kotlinx.jupyter.api.Code
 import org.jetbrains.kotlinx.jupyter.api.CodeCell
@@ -63,11 +68,6 @@ import org.jetbrains.kotlinx.jupyter.repl.notebook.MutableNotebook
 import org.jetbrains.kotlinx.jupyter.repl.renderValue
 import org.jetbrains.kotlinx.jupyter.repl.result.EvalResultEx
 import org.jetbrains.kotlinx.jupyter.util.asCommonFactory
-import java.io.File
-import kotlin.reflect.KClass
-import kotlin.reflect.typeOf
-import kotlin.script.experimental.jvm.util.scriptCompilationClasspathFromContext
-import kotlin.test.assertEquals
 
 val testDataDir = File("src/test/testData")
 
@@ -245,7 +245,7 @@ class TestDisplayHandlerWithRendering(
         id: String?,
     ) {
         super.handleDisplay(value, host, id)
-        val display = renderValue(notebook, host, value)?.let { if (id != null) it.withId(id) else it } ?: return
+        val display = renderValue(notebook, host, value, id)?.let { if (id != null) it.withId(id) else it } ?: return
         notebook.currentCell?.addDisplay(display)
     }
 
@@ -255,7 +255,7 @@ class TestDisplayHandlerWithRendering(
         id: String?,
     ) {
         super.handleUpdate(value, host, id)
-        val display = renderValue(notebook, host, value) ?: return
+        val display = renderValue(notebook, host, value, id) ?: return
         val container = notebook.displays
         container.update(id, display)
         container.getById(id).distinctBy { it.cell.id }.forEach {

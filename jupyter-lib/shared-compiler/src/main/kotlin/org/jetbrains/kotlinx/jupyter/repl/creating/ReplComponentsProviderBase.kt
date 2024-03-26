@@ -1,5 +1,6 @@
 package org.jetbrains.kotlinx.jupyter.repl.creating
 
+import java.io.File
 import org.jetbrains.kotlinx.jupyter.api.JupyterClientType
 import org.jetbrains.kotlinx.jupyter.api.KernelLoggerFactory
 import org.jetbrains.kotlinx.jupyter.api.SessionOptions
@@ -35,13 +36,11 @@ import org.jetbrains.kotlinx.jupyter.repl.ReplOptions
 import org.jetbrains.kotlinx.jupyter.repl.ReplOptionsImpl
 import org.jetbrains.kotlinx.jupyter.repl.ReplRuntimeProperties
 import org.jetbrains.kotlinx.jupyter.repl.SessionOptionsImpl
+import org.jetbrains.kotlinx.jupyter.repl.embedded.InMemoryReplResultsHolder
+import org.jetbrains.kotlinx.jupyter.repl.embedded.NoOpInMemoryReplResultsHolder
 import org.jetbrains.kotlinx.jupyter.repl.notebook.MutableNotebook
 import org.jetbrains.kotlinx.jupyter.repl.notebook.impl.NotebookImpl
 import org.jetbrains.kotlinx.jupyter.util.asCommonFactory
-import java.io.File
-import org.jetbrains.kotlinx.jupyter.repl.embedded.DefaultInMemoryReplResultsHolder
-import org.jetbrains.kotlinx.jupyter.repl.embedded.InMemoryReplResultsHolder
-import org.jetbrains.kotlinx.jupyter.repl.embedded.NoOpInMemoryReplResultsHolder
 
 abstract class ReplComponentsProviderBase : LazilyConstructibleReplComponentsProviderImpl() {
     override fun provideLoggerFactory(): KernelLoggerFactory = DefaultKernelLoggerFactory
@@ -125,5 +124,5 @@ abstract class ReplComponentsProviderBase : LazilyConstructibleReplComponentsPro
     }
 
     override fun provideLibraryReferenceParser(): LibraryReferenceParser = LibraryReferenceParserImpl(libraryInfoCache)
-    override fun provideInMemoryReplResultsHolder(): InMemoryReplResultsHolder = if (isEmbedded) DefaultInMemoryReplResultsHolder() else NoOpInMemoryReplResultsHolder()
+    override fun provideInMemoryReplResultsHolder(): InMemoryReplResultsHolder = NoOpInMemoryReplResultsHolder
 }
