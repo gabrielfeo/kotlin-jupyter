@@ -26,11 +26,25 @@ interface InMemoryReplResultsHolder {
     fun <T: Any> getReplResult(id: String, type: KClass<T>): T?
 
     /**
+     * Add a REPL result without an ID. An ID will be auto-generated and returned.
+     *
+     * @param result the REPL result to store.
+     * @return the id the [result] was stored under.
+     */
+    fun addReplResult(result: Any?): String
+
+    /**
      * Sets the REPL result for a given id.
      * @param id unique id for the given REPL result. Normally this is [DisplayResult.id].
      * @param result the REPL result to store.
      */
     fun setReplResult(id: String, result: Any?)
+
+    /**
+     * Removes the REPL result with the given [id] from the holder.
+     * Returns `true` if an entry was removed, `false` if not.
+     */
+    fun removeReplResult(id: String): Boolean
 
     /**
      * Returns how many REPL results are currently being stored.

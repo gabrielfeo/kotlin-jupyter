@@ -17,19 +17,15 @@ fun renderValue(
 ): DisplayResult? {
     val inMemoryReplResultsHolder = notebook.sharedReplContext!!.inMemoryReplResultsHolder
 
-    fun nextRandomId(): String {
-        var newId = "display-${Random.nextInt()}"
-        while(inMemoryReplResultsHolder.getReplResult(newId, Any::class) != null) {
-            newId = "display-${Random.nextInt()}"
-        }
-        return newId
-    }
-
     val rendered = notebook.renderersProcessor.renderValue(executor, value)?.let {
         if (it is InMemoryMimeTypedResult) {
-            val displayId = id ?: nextRandomId()
             val inMemoryValue = it.inMemoryOutput.result
-            inMemoryReplResultsHolder.setReplResult(displayId, inMemoryValue)
+            val displayId = if (id != null) {
+                inMemoryReplResultsHolder.setReplResult(id, inMemoryValue)
+                id
+            } else {
+                inMemoryReplResultsHolder.addReplResult(inMemoryValue)
+            }
             return MimeTypedResult(mimeData = it.fallbackResult + Pair(it.inMemoryOutput.mimeType, displayId))
         } else {
             it

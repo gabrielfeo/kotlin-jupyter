@@ -12,8 +12,17 @@ object NoOpInMemoryReplResultsHolder : InMemoryReplResultsHolder {
         return null
     }
 
+    override fun addReplResult(result: Any?): String {
+        /* Do nothing */
+        return ""
+    }
+
     override fun setReplResult(id: String, result: Any?) {
         /* Do nothing */
+    }
+
+    override fun removeReplResult(id: String): Boolean {
+        return false
     }
 
     override val size: Int = 0

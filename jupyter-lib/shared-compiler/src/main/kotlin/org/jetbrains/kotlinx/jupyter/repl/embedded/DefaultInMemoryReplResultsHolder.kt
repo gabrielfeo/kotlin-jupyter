@@ -1,5 +1,6 @@
 package org.jetbrains.kotlinx.jupyter.repl.embedded
 
+import kotlin.random.Random
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
@@ -19,8 +20,28 @@ class DefaultInMemoryReplResultsHolder : InMemoryReplResultsHolder {
         }
     }
 
+    private fun nextRandomId(): String {
+        // Make a reasonable attempt at avoiding conflicts with
+        // user-provided ids.
+        var newId = "generated-${Random.nextInt()}"
+        while(cache[newId] != null) {
+            newId = "generated-${Random.nextInt()}"
+        }
+        return newId
+    }
+
+    override fun addReplResult(result: Any?): String {
+        return nextRandomId().also { id ->
+            cache[id] = result
+        }
+    }
+
     override fun setReplResult(id: String, result: Any?) {
         cache[id] = result
+    }
+
+    override fun removeReplResult(id: String): Boolean {
+        return cache.remove(id) != null
     }
 
     override val size: Int
