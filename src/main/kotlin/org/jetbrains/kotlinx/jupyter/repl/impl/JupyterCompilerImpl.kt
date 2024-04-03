@@ -1,24 +1,5 @@
 package org.jetbrains.kotlinx.jupyter.repl.impl
 
-import kotlinx.coroutines.runBlocking
-import org.jetbrains.kotlin.scripting.compiler.plugin.impl.KJvmReplCompilerBase
-import org.jetbrains.kotlin.scripting.compiler.plugin.repl.ReplCodeAnalyzerBase
-import org.jetbrains.kotlin.scripting.ide_services.compiler.KJvmReplCompilerWithIdeServices
-import org.jetbrains.kotlin.scripting.resolve.KtFileScriptSource
-import org.jetbrains.kotlin.scripting.resolve.getScriptCollectedData
-import org.jetbrains.kotlinx.jupyter.api.Code
-import org.jetbrains.kotlinx.jupyter.api.FileAnnotationHandler
-import org.jetbrains.kotlinx.jupyter.api.KotlinKernelVersion
-import org.jetbrains.kotlinx.jupyter.compiler.util.SourceCodeImpl
-import org.jetbrains.kotlinx.jupyter.compiler.util.actualClassLoader
-import org.jetbrains.kotlinx.jupyter.config.JupyterCompilingOptions
-import org.jetbrains.kotlinx.jupyter.config.currentKernelVersion
-import org.jetbrains.kotlinx.jupyter.config.jupyterOptions
-import org.jetbrains.kotlinx.jupyter.exceptions.ReplCompilerException
-import org.jetbrains.kotlinx.jupyter.exceptions.ReplException
-import org.jetbrains.kotlinx.jupyter.exceptions.getErrors
-import org.jetbrains.kotlinx.jupyter.repl.CheckCompletenessResult
-import org.jetbrains.kotlinx.jupyter.util.createCachedFun
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
 import kotlin.script.experimental.api.KotlinType
@@ -51,6 +32,25 @@ import kotlin.script.experimental.jvm.jvm
 import kotlin.script.experimental.jvm.lastSnippetClassLoader
 import kotlin.script.experimental.jvm.util.toSourceCodePosition
 import kotlin.script.experimental.util.LinkedSnippet
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.kotlin.scripting.compiler.plugin.impl.KJvmReplCompilerBase
+import org.jetbrains.kotlin.scripting.compiler.plugin.repl.ReplCodeAnalyzerBase
+import org.jetbrains.kotlin.scripting.ide_services.compiler.KJvmReplCompilerWithIdeServices
+import org.jetbrains.kotlin.scripting.resolve.KtFileScriptSource
+import org.jetbrains.kotlin.scripting.resolve.getScriptCollectedData
+import org.jetbrains.kotlinx.jupyter.api.Code
+import org.jetbrains.kotlinx.jupyter.api.FileAnnotationHandler
+import org.jetbrains.kotlinx.jupyter.api.KotlinKernelVersion
+import org.jetbrains.kotlinx.jupyter.compiler.util.SourceCodeImpl
+import org.jetbrains.kotlinx.jupyter.compiler.util.actualClassLoader
+import org.jetbrains.kotlinx.jupyter.config.JupyterCompilingOptions
+import org.jetbrains.kotlinx.jupyter.config.currentKernelVersion
+import org.jetbrains.kotlinx.jupyter.config.jupyterOptions
+import org.jetbrains.kotlinx.jupyter.exceptions.ReplCompilerException
+import org.jetbrains.kotlinx.jupyter.exceptions.ReplException
+import org.jetbrains.kotlinx.jupyter.exceptions.getErrors
+import org.jetbrains.kotlinx.jupyter.repl.CheckCompletenessResult
+import org.jetbrains.kotlinx.jupyter.util.createCachedFun
 
 interface JupyterCompiler {
     val version: KotlinKernelVersion

@@ -79,11 +79,11 @@ fun JupyterCommunicationFacility.sendExecuteResult(
         messageFactory.makeReplyMessage(
             MessageType.EXECUTE_RESULT,
             content =
-				ExecutionResultMessage(
-	                executionCount = requestCount,
-    	            data = resultJson["data"]!!,
-        	        metadata = resultJson["metadata"]!!,
-            	),
+                ExecutionResultMessage(
+                    executionCount = requestCount,
+                    data = resultJson["data"]!!,
+                    metadata = resultJson["metadata"]!!,
+                ),
         ),
     )
 }

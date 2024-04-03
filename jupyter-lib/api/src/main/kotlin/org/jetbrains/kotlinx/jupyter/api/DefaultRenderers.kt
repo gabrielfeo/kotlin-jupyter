@@ -24,41 +24,43 @@ fun encodeBufferedImage(image: BufferedImage): JsonPrimitive {
     return JsonPrimitive(encodedData)
 }
 
-val bufferedImageRenderer: RendererFieldHandler = createRenderer<BufferedImage> {
-    val encodedData: JsonPrimitive = encodeBufferedImage(it)
-    MimeTypedResultEx(
-        buildJsonObject {
-            put(MimeTypes.PNG, encodedData)
-            put(MimeTypes.PLAIN_TEXT, JsonPrimitive("${it::class}: ${it.width}x${it.height} px"))
-        },
-        metadataModifiers = listOf(),
-    )
-}
+val bufferedImageRenderer: RendererFieldHandler =
+    createRenderer<BufferedImage> {
+        val encodedData: JsonPrimitive = encodeBufferedImage(it)
+        MimeTypedResultEx(
+            buildJsonObject {
+                put(MimeTypes.PNG, encodedData)
+                put(MimeTypes.PLAIN_TEXT, JsonPrimitive("${it::class}: ${it.width}x${it.height} px"))
+            },
+            metadataModifiers = listOf(),
+        )
+    }
 
 /**
- * Renders any array (primitive or non-primitive) into list
+ * Renders any array (primitive or non-primitive) into a list.
  */
-val arrayRenderer = object : RendererHandler {
-    override fun accepts(value: Any?): Boolean {
-        return value != null && value::class.java.isArray
-    }
+val arrayRenderer =
+    object : RendererHandler {
+        override fun accepts(value: Any?): Boolean {
+            return value != null && value::class.java.isArray
+        }
 
-    private fun toListRuntime(a: Any): List<Any?> {
-        val len = Array.getLength(a)
-        return ArrayList<Any?>(len).apply {
-            for (i in 0 until len) {
-                add(Array.get(a, i))
+        private fun toListRuntime(a: Any): List<Any?> {
+            val len = Array.getLength(a)
+            return ArrayList<Any?>(len).apply {
+                for (i in 0 until len) {
+                    add(Array.get(a, i))
+                }
             }
         }
-    }
 
-    override val execution = ResultHandlerExecution { _, result -> FieldValue(toListRuntime(result.value!!), null) }
-    override fun replaceVariables(mapping: Map<String, String>) = this
+        override val execution = ResultHandlerExecution { _, result -> FieldValue(toListRuntime(result.value!!), null) }
+        override fun replaceVariables(mapping: Map<String, String>) = this
 
-    override fun toString(): String {
-        return "Default renderer of arrays: renders them to lists"
+        override fun toString(): String {
+            return "Default renderer of arrays: renders them to lists"
+        }
     }
-}
 
 private fun createInMemoryMimeTypedResult(
     fallbackImage: BufferedImage?,
@@ -74,29 +76,33 @@ private fun createInMemoryMimeTypedResult(
         mapOf(fallback),
     )
 }
+
 /**
  * Renders a Swing [JFrame] in-memory, but also provides a screenshot of the UI as
  * fallback data.
  */
-val swingJFrameInMemoryRenderer = createRenderer<JFrame> { frame: JFrame ->
-    val fallbackImage: BufferedImage? = frame.takeScreenshot()
-    createInMemoryMimeTypedResult(fallbackImage, frame)
-}
+val swingJFrameInMemoryRenderer =
+    createRenderer<JFrame> { frame: JFrame ->
+        val fallbackImage: BufferedImage? = frame.takeScreenshot()
+        createInMemoryMimeTypedResult(fallbackImage, frame)
+    }
 
 /**
  * Renders a Swing [JDialog] in-memory, but also provides a screenshot of the UI as
  * fallback data.
  */
-val swingJDialogInMemoryRenderer = createRenderer<JDialog> { dialog: JDialog ->
-    val fallbackImage: BufferedImage? = dialog.takeScreenshot()
-    createInMemoryMimeTypedResult(fallbackImage, dialog)
-}
+val swingJDialogInMemoryRenderer =
+    createRenderer<JDialog> { dialog: JDialog ->
+        val fallbackImage: BufferedImage? = dialog.takeScreenshot()
+        createInMemoryMimeTypedResult(fallbackImage, dialog)
+    }
 
 /**
  * Renders a Swing [JComponent] in-memory, but also provides a screenshot of the UI as
  * fallback data.
  */
-val swingJComponentInMemoryRenderer: RendererFieldHandler = createRenderer<JComponent> { component: JComponent ->
-    val fallbackImage: BufferedImage? = component.takeScreenshot()
-    createInMemoryMimeTypedResult(fallbackImage, component)
-}
+val swingJComponentInMemoryRenderer: RendererFieldHandler =
+    createRenderer<JComponent> { component: JComponent ->
+        val fallbackImage: BufferedImage? = component.takeScreenshot()
+        createInMemoryMimeTypedResult(fallbackImage, component)
+    }

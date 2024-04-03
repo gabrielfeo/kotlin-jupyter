@@ -95,20 +95,20 @@ abstract class AbstractReplTest {
             )
         val myHomeDir = homeDir
         val factory =
-			object : ReplComponentsProviderBase() {
-	            override fun provideResolutionInfoProvider() = standardResolutionInfoProvider
-    	        override fun provideScriptClasspath() = classpath
-        	    override fun provideHomeDir() = myHomeDir
-            	override fun provideMavenRepositories() = testRepositories
-            	override fun provideLibraryResolver() = resolver
-            	override fun provideRuntimeProperties() = standardResolverRuntimeProperties
-            	override fun provideScriptReceivers() = emptyList<Any>()
-            	override fun provideIsEmbedded() = false
-            	override fun provideDisplayHandler() = displayHandlerProvider(notebook)
-            	override fun provideCommunicationFacility() = CommunicationFacilityMock
-            	override fun provideDebugPort(): Int? = null
-            	override fun provideInMemoryReplResultsHolder() = NoOpInMemoryReplResultsHolder
-        	}
+            object : ReplComponentsProviderBase() {
+                override fun provideResolutionInfoProvider() = standardResolutionInfoProvider
+                override fun provideScriptClasspath() = classpath
+                override fun provideHomeDir() = myHomeDir
+                override fun provideMavenRepositories() = testRepositories
+                override fun provideLibraryResolver() = resolver
+                override fun provideRuntimeProperties() = standardResolverRuntimeProperties
+                override fun provideScriptReceivers() = emptyList<Any>()
+                override fun provideIsEmbedded() = false
+                override fun provideDisplayHandler() = displayHandlerProvider(notebook)
+                override fun provideCommunicationFacility() = CommunicationFacilityMock
+                override fun provideDebugPort(): Int? = null
+                override fun provideInMemoryReplResultsHolder() = NoOpInMemoryReplResultsHolder
+            }
         return factory.createRepl()
     }
 

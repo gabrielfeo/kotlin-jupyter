@@ -12,7 +12,6 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.Transient
 import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -30,7 +29,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.serializer
-import org.jetbrains.kotlinx.jupyter.api.InMemoryResult
 import org.jetbrains.kotlinx.jupyter.config.LanguageInfo
 import org.jetbrains.kotlinx.jupyter.exceptions.ReplException
 import org.jetbrains.kotlinx.jupyter.protocol.messageDataJson
@@ -401,9 +399,6 @@ class ExecutionResultMessage(
     val metadata: JsonElement,
     @SerialName("execution_count")
     val executionCount: Long,
-
-    @Transient
-    val inMemoryOutput: InMemoryResult? = null
 ) : AbstractMessageContent()
 
 @Serializable

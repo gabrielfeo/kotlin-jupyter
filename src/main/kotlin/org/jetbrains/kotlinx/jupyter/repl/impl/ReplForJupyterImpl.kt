@@ -387,7 +387,7 @@ class ReplForJupyterImpl(
             interruptionCallbacksProcessor,
             colorSchemeChangeCallbacksProcessor,
             displayHandler,
-        	inMemoryReplResultsHolder
+            inMemoryReplResultsHolder
         ).also {
             notebook.sharedReplContext = it
             commHandlers.requireUniqueTargets()
