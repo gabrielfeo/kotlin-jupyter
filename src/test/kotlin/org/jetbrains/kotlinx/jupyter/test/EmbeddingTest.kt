@@ -1,17 +1,5 @@
 package org.jetbrains.kotlinx.jupyter.test
 
-import java.awt.Dimension
-import java.awt.image.BufferedImage
-import javax.swing.JButton
-import javax.swing.JComponent
-import javax.swing.JDialog
-import javax.swing.JFrame
-import javax.swing.JPanel
-import kotlin.reflect.KClass
-import kotlin.test.DefaultAsserter.fail
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 import org.jetbrains.kotlinx.jupyter.api.InMemoryMimeTypes
 import org.jetbrains.kotlinx.jupyter.api.MimeTypedResult
 import org.jetbrains.kotlinx.jupyter.api.MimeTypes
@@ -28,6 +16,19 @@ import org.jetbrains.kotlinx.jupyter.test.repl.AbstractSingleReplTest
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.parallel.ResourceLock
+import java.awt.Dimension
+import java.awt.image.BufferedImage
+import javax.swing.JButton
+import javax.swing.JComponent
+import javax.swing.JDialog
+import javax.swing.JFrame
+import javax.swing.JPanel
+import kotlin.reflect.KClass
+import kotlin.test.DefaultAsserter.fail
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class SomeSingleton {
     companion object {
@@ -107,6 +108,15 @@ val testLibraryDefinition2 =
  * Class for testing the embedded kernel.
  */
 class EmbedReplTest : AbstractSingleReplTest() {
+    companion object {
+        // Lock to prevent multiple tests accessing the screen at the same time. It looks like if multiple
+        // tests are opening JFrame/JDialogs, then taking screenshots can fail with
+        // "Cannot invoke "java.awt.Window.isOpaque()" because "w" is null", if they overlap.
+        @Suppress("unused")
+        @JvmStatic
+        val screenLock = Object()
+    }
+
     override val repl = makeEmbeddedRepl()
 
     @Test
@@ -147,33 +157,38 @@ class EmbedReplTest : AbstractSingleReplTest() {
     }
 
     @Test
+    @ResourceLock("screenLock")
     fun testInMemoryValue() {
-        val types = listOf(
-            JFrame::class to """
-                import javax.swing.JFrame
-                val frame = JFrame("panel")
-                frame.setSize(300, 300)
-                frame.isVisible = true
-                frame
-            """.trimIndent(),
-            JDialog::class to """
-                import javax.swing.JDialog
-                val dialog = JDialog()
-                dialog.setSize(300, 300)
-                dialog.isVisible = true
-                dialog
-            """.trimIndent(),
-            JComponent::class to """
-                import javax.swing.JPanel
-                val panel = JPanel()
-                panel.setSize(300, 300)
-                panel
-            """.trimIndent()
-        )
+        val types =
+            listOf(
+                JFrame::class to
+                    """
+                    import javax.swing.JFrame
+                    val frame = JFrame("panel")
+                    frame.setSize(300, 300)
+                    frame.isVisible = true
+                    frame
+                    """.trimIndent(),
+                JDialog::class to
+                    """
+                    import javax.swing.JDialog
+                    val dialog = JDialog()
+                    dialog.setSize(300, 300)
+                    dialog.isVisible = true
+                    dialog
+                    """.trimIndent(),
+                JComponent::class to
+                    """
+                    import javax.swing.JPanel
+                    val panel = JPanel()
+                    panel.setSize(300, 300)
+                    panel
+                    """.trimIndent(),
+            )
         types.forEach { (expectedOutputClass: KClass<*>, code: String) ->
-            val result  = eval(code)
-            assertTrue(result.renderedValue is MimeTypedResult)
-            assertTrue(result.displayValue is MimeTypedResult)
+            val result = eval(code)
+            assertTrue(result.renderedValue is MimeTypedResult, "Was: ${result.renderedValue}")
+            assertTrue(result.displayValue is MimeTypedResult, "Was: ${result.displayValue}")
             val display = result.displayValue as MimeTypedResult
             assertEquals(2, display.size)
             assertTrue(display.containsKey("image/png"))
@@ -185,14 +200,15 @@ class EmbedReplTest : AbstractSingleReplTest() {
         }
     }
 
-
     @Test
+    @ResourceLock("screenLock")
     fun testScreenshotWithNoSize() {
         val panel = JPanel()
         assertNull(panel.takeScreenshot())
     }
 
     @Test
+    @ResourceLock("screenLock")
     fun testScreenshotOfJFrame() {
         val frame = JFrame()
         frame.size = Dimension(100, 50)
@@ -204,6 +220,7 @@ class EmbedReplTest : AbstractSingleReplTest() {
     }
 
     @Test
+    @ResourceLock("screenLock")
     fun testScreenshotOfJDialog() {
         val dialog = JDialog()
         dialog.size = Dimension(100, 50)
@@ -215,6 +232,7 @@ class EmbedReplTest : AbstractSingleReplTest() {
     }
 
     @Test
+    @ResourceLock("screenLock")
     fun testScreenshotOfJComponent() {
         val panel = JPanel()
         panel.size = Dimension(100, 50)
@@ -244,7 +262,6 @@ class EmbedReplTest : AbstractSingleReplTest() {
         }
         fail("Image only contained a single color: $topLeftColor")
     }
-
 }
 
 class EmbeddedTestWithHackedDisplayHandler : AbstractSingleReplTest() {
