@@ -1,6 +1,5 @@
 package org.jetbrains.kotlinx.jupyter.api
 
-import java.util.concurrent.atomic.AtomicLong
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -19,6 +18,7 @@ import org.jetbrains.kotlinx.jupyter.api.outputs.isIsolatedHtml
 import org.jetbrains.kotlinx.jupyter.api.outputs.standardMetadataModifiers
 import org.jetbrains.kotlinx.jupyter.util.EMPTY
 import org.jetbrains.kotlinx.jupyter.util.escapeForIframe
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Type alias for FQNs - fully qualified names of classes
@@ -166,7 +166,10 @@ class InMemoryMimeTypedResult(
     val inMemoryOutput: InMemoryResult,
     val fallbackResult: Map<String, String>,
 ) : DisplayResult {
-    override fun toJson(additionalMetadata: JsonObject, overrideId: String?): JsonObject {
+    override fun toJson(
+        additionalMetadata: JsonObject,
+        overrideId: String?,
+    ): JsonObject {
         throw UnsupportedOperationException("This method is not supported for in-memory values")
     }
 }

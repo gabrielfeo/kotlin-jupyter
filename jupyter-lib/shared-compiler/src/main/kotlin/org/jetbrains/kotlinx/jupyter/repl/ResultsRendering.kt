@@ -1,6 +1,5 @@
 package org.jetbrains.kotlinx.jupyter.repl
 
-import kotlin.random.Random
 import org.jetbrains.kotlinx.jupyter.api.DisplayResult
 import org.jetbrains.kotlinx.jupyter.api.InMemoryMimeTypedResult
 import org.jetbrains.kotlinx.jupyter.api.MimeTypedResult
@@ -13,24 +12,26 @@ fun renderValue(
     notebook: MutableNotebook,
     executor: ExecutionHost,
     value: Any?,
-	id: String?,
+    id: String?,
 ): DisplayResult? {
     val inMemoryReplResultsHolder = notebook.sharedReplContext!!.inMemoryReplResultsHolder
 
-    val rendered = notebook.renderersProcessor.renderValue(executor, value)?.let {
-        if (it is InMemoryMimeTypedResult) {
-            val inMemoryValue = it.inMemoryOutput.result
-            val displayId = if (id != null) {
-                inMemoryReplResultsHolder.setReplResult(id, inMemoryValue)
-                id
+    val rendered =
+        notebook.renderersProcessor.renderValue(executor, value)?.let {
+            if (it is InMemoryMimeTypedResult) {
+                val inMemoryValue = it.inMemoryOutput.result
+                val displayId =
+                    if (id != null) {
+                        inMemoryReplResultsHolder.setReplResult(id, inMemoryValue)
+                        id
+                    } else {
+                        inMemoryReplResultsHolder.addReplResult(inMemoryValue)
+                    }
+                return MimeTypedResult(mimeData = it.fallbackResult + Pair(it.inMemoryOutput.mimeType, displayId))
             } else {
-                inMemoryReplResultsHolder.addReplResult(inMemoryValue)
+                it
             }
-            return MimeTypedResult(mimeData = it.fallbackResult + Pair(it.inMemoryOutput.mimeType, displayId))
-        } else {
-            it
         }
-    }
     return notebook.postRender(rendered)
 }
 

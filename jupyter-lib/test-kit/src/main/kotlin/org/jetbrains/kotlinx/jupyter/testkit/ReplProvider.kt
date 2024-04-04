@@ -1,6 +1,5 @@
 package org.jetbrains.kotlinx.jupyter.testkit
 
-import java.io.File
 import jupyter.kotlin.DependsOn
 import org.jetbrains.kotlinx.jupyter.config.DefaultKernelLoggerFactory
 import org.jetbrains.kotlinx.jupyter.config.defaultRepositoriesCoordinates
@@ -9,6 +8,7 @@ import org.jetbrains.kotlinx.jupyter.libraries.createLibraryHttpUtil
 import org.jetbrains.kotlinx.jupyter.repl.ReplForJupyter
 import org.jetbrains.kotlinx.jupyter.repl.creating.createRepl
 import org.jetbrains.kotlinx.jupyter.repl.embedded.NoOpInMemoryReplResultsHolder
+import java.io.File
 
 fun interface ReplProvider {
     operator fun invoke(classpath: List<File>): ReplForJupyter
@@ -40,7 +40,7 @@ fun interface ReplProvider {
                 isEmbedded = true,
                 mavenRepositories = defaultRepositoriesCoordinates,
                 libraryResolver = resolver,
-                inMemoryReplResultsHolder = NoOpInMemoryReplResultsHolder
+                inMemoryReplResultsHolder = NoOpInMemoryReplResultsHolder,
             ).apply {
                 initializeWithCurrentClasspath()
             }

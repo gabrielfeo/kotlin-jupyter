@@ -1,8 +1,5 @@
 package org.jetbrains.kotlinx.jupyter
 
-import java.io.File
-import kotlin.concurrent.thread
-import kotlin.script.experimental.jvm.util.classpathFromClassloader
 import org.jetbrains.kotlinx.jupyter.api.libraries.JupyterConnection
 import org.jetbrains.kotlinx.jupyter.api.libraries.JupyterSocketType
 import org.jetbrains.kotlinx.jupyter.api.libraries.rawMessageCallback
@@ -32,6 +29,9 @@ import org.jetbrains.kotlinx.jupyter.repl.embedded.NoOpInMemoryReplResultsHolder
 import org.jetbrains.kotlinx.jupyter.startup.KernelArgs
 import org.jetbrains.kotlinx.jupyter.startup.getConfig
 import org.slf4j.Logger
+import java.io.File
+import kotlin.concurrent.thread
+import kotlin.script.experimental.jvm.util.classpathFromClassloader
 
 val iKotlinClass: Class<*> = object {}::class.java.enclosingClass
 

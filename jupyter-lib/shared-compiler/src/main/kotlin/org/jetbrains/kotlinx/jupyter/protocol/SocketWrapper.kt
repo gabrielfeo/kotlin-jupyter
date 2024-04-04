@@ -1,8 +1,5 @@
 package org.jetbrains.kotlinx.jupyter.protocol
 
-import java.security.SignatureException
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -14,6 +11,9 @@ import org.jetbrains.kotlinx.jupyter.api.libraries.RawMessage
 import org.jetbrains.kotlinx.jupyter.startup.KernelConfig
 import org.jetbrains.kotlinx.jupyter.util.EMPTY
 import org.zeromq.ZMQ
+import java.security.SignatureException
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 typealias SocketRawMessageCallback = JupyterSocket.(RawMessage) -> Unit
 

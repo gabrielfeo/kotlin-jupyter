@@ -1,6 +1,5 @@
 package org.jetbrains.kotlinx.jupyter.repl.creating
 
-import java.io.File
 import org.jetbrains.kotlinx.jupyter.api.JupyterClientType
 import org.jetbrains.kotlinx.jupyter.api.KernelLoggerFactory
 import org.jetbrains.kotlinx.jupyter.api.SessionOptions
@@ -41,6 +40,7 @@ import org.jetbrains.kotlinx.jupyter.repl.embedded.NoOpInMemoryReplResultsHolder
 import org.jetbrains.kotlinx.jupyter.repl.notebook.MutableNotebook
 import org.jetbrains.kotlinx.jupyter.repl.notebook.impl.NotebookImpl
 import org.jetbrains.kotlinx.jupyter.util.asCommonFactory
+import java.io.File
 
 abstract class ReplComponentsProviderBase : LazilyConstructibleReplComponentsProviderImpl() {
     override fun provideLoggerFactory(): KernelLoggerFactory = DefaultKernelLoggerFactory

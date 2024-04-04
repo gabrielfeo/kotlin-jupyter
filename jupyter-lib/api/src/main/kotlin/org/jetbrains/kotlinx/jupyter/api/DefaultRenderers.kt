@@ -1,5 +1,7 @@
 package org.jetbrains.kotlinx.jupyter.api
 
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.lang.reflect.Array
@@ -8,8 +10,6 @@ import javax.imageio.ImageIO
 import javax.swing.JComponent
 import javax.swing.JDialog
 import javax.swing.JFrame
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.buildJsonObject
 
 /**
  * Convert a buffered image to a PNG file encoded as a Base64 Json string.
@@ -55,6 +55,7 @@ val arrayRenderer =
         }
 
         override val execution = ResultHandlerExecution { _, result -> FieldValue(toListRuntime(result.value!!), null) }
+
         override fun replaceVariables(mapping: Map<String, String>) = this
 
         override fun toString(): String {
@@ -66,11 +67,12 @@ private fun createInMemoryMimeTypedResult(
     fallbackImage: BufferedImage?,
     swingResult: Any,
 ): InMemoryMimeTypedResult {
-    val fallback = if (fallbackImage == null) {
-        MimeTypes.PLAIN_TEXT to "No data available. Rerun the cell."
-    } else {
-        MimeTypes.PNG to encodeBufferedImage(fallbackImage).content
-    }
+    val fallback =
+        if (fallbackImage == null) {
+            MimeTypes.PLAIN_TEXT to "No data available. Rerun the cell."
+        } else {
+            MimeTypes.PNG to encodeBufferedImage(fallbackImage).content
+        }
     return InMemoryMimeTypedResult(
         InMemoryResult(InMemoryMimeTypes.SWING, swingResult),
         mapOf(fallback),

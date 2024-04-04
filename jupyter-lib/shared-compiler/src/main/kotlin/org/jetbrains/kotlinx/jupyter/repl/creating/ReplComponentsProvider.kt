@@ -21,9 +21,9 @@ import org.jetbrains.kotlinx.jupyter.messaging.comms.CommHandler
 import org.jetbrains.kotlinx.jupyter.repl.MavenRepositoryCoordinates
 import org.jetbrains.kotlinx.jupyter.repl.ReplOptions
 import org.jetbrains.kotlinx.jupyter.repl.ReplRuntimeProperties
+import org.jetbrains.kotlinx.jupyter.repl.embedded.InMemoryReplResultsHolder
 import org.jetbrains.kotlinx.jupyter.repl.notebook.MutableNotebook
 import java.io.File
-import org.jetbrains.kotlinx.jupyter.repl.embedded.InMemoryReplResultsHolder
 
 interface ReplComponentsProvider {
     val loggerFactory: KernelLoggerFactory

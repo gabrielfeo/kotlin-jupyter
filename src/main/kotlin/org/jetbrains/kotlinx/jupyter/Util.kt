@@ -1,10 +1,5 @@
 package org.jetbrains.kotlinx.jupyter
 
-import java.io.Closeable
-import java.io.File
-import kotlin.script.experimental.api.ScriptDiagnostic
-import kotlin.script.experimental.api.SourceCode
-import kotlin.script.experimental.jvm.util.toSourceCodePosition
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import org.jetbrains.kotlinx.jupyter.api.KernelLoggerFactory
@@ -28,6 +23,11 @@ import org.jetbrains.kotlinx.jupyter.libraries.ResourceLibraryDescriptorsProvide
 import org.jetbrains.kotlinx.jupyter.libraries.parseLibraryDescriptor
 import org.jetbrains.kotlinx.jupyter.libraries.parseLibraryDescriptorGlobalOptions
 import org.jetbrains.kotlinx.jupyter.util.createCachedFun
+import java.io.Closeable
+import java.io.File
+import kotlin.script.experimental.api.ScriptDiagnostic
+import kotlin.script.experimental.api.SourceCode
+import kotlin.script.experimental.jvm.util.toSourceCodePosition
 
 fun List<String>.joinToLines() = joinToString("\n")
 

@@ -3,10 +3,6 @@
 
 package org.jetbrains.kotlinx.jupyter.messaging
 
-import java.util.concurrent.ConcurrentHashMap
-import kotlin.reflect.KClass
-import kotlin.reflect.full.createType
-import kotlin.script.experimental.api.ScriptDiagnostic
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -34,6 +30,10 @@ import org.jetbrains.kotlinx.jupyter.exceptions.ReplException
 import org.jetbrains.kotlinx.jupyter.protocol.messageDataJson
 import org.jetbrains.kotlinx.jupyter.util.EMPTY
 import org.jetbrains.kotlinx.jupyter.util.toUpperCaseAsciiOnly
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.reflect.KClass
+import kotlin.reflect.full.createType
+import kotlin.script.experimental.api.ScriptDiagnostic
 
 @Serializable(MessageTypeSerializer::class)
 enum class MessageType(val contentClass: KClass<out MessageContent>) {

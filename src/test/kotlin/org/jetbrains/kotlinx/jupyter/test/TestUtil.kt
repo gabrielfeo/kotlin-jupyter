@@ -3,12 +3,7 @@ package org.jetbrains.kotlinx.jupyter.test
 import io.kotest.assertions.fail
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeTypeOf
-import java.io.File
 import jupyter.kotlin.JavaRuntime
-import kotlin.reflect.KClass
-import kotlin.reflect.typeOf
-import kotlin.script.experimental.jvm.util.scriptCompilationClasspathFromContext
-import kotlin.test.assertEquals
 import org.jetbrains.kotlinx.jupyter.api.AfterCellExecutionCallback
 import org.jetbrains.kotlinx.jupyter.api.Code
 import org.jetbrains.kotlinx.jupyter.api.CodeCell
@@ -68,6 +63,11 @@ import org.jetbrains.kotlinx.jupyter.repl.notebook.MutableNotebook
 import org.jetbrains.kotlinx.jupyter.repl.renderValue
 import org.jetbrains.kotlinx.jupyter.repl.result.EvalResultEx
 import org.jetbrains.kotlinx.jupyter.util.asCommonFactory
+import java.io.File
+import kotlin.reflect.KClass
+import kotlin.reflect.typeOf
+import kotlin.script.experimental.jvm.util.scriptCompilationClasspathFromContext
+import kotlin.test.assertEquals
 
 val testDataDir = File("src/test/testData")
 

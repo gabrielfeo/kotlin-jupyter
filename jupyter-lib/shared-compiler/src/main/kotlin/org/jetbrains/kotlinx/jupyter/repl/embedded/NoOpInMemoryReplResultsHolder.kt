@@ -7,18 +7,24 @@ import kotlin.reflect.KClass
  * in embedded mode.
  */
 object NoOpInMemoryReplResultsHolder : InMemoryReplResultsHolder {
-    override fun <T : Any> getReplResult(id: String, type: KClass<T>): T? {
-        /* Do nothing */
+    override fun <T : Any> getReplResult(
+        id: String,
+        type: KClass<T>,
+    ): T? {
+        // Do nothing
         return null
     }
 
     override fun addReplResult(result: Any?): String {
-        /* Do nothing */
+        // Do nothing
         return ""
     }
 
-    override fun setReplResult(id: String, result: Any?) {
-        /* Do nothing */
+    override fun setReplResult(
+        id: String,
+        result: Any?,
+    ) {
+        // Do nothing
     }
 
     override fun removeReplResult(id: String): Boolean {

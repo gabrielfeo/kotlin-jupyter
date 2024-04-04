@@ -60,11 +60,12 @@ class SocketDisplayHandler(
     }
 
     private fun createResponse(json: JsonObject): DisplayDataResponse {
-        val content = DisplayDataResponse(
-            json["data"],
-            json["metadata"],
-            json["transient"],
-        )
+        val content =
+            DisplayDataResponse(
+                json["data"],
+                json["metadata"],
+                json["transient"],
+            )
         return content
     }
 }

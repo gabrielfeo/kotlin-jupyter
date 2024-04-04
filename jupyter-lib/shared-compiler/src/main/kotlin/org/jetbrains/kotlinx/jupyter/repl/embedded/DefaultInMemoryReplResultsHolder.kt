@@ -11,10 +11,12 @@ import kotlin.reflect.cast
  * old result is GC'ed.
  */
 class DefaultInMemoryReplResultsHolder : InMemoryReplResultsHolder {
-
     private val cache = mutableMapOf<String, Any?>()
 
-    override fun <T : Any> getReplResult(id: String, type: KClass<T>): T? {
+    override fun <T : Any> getReplResult(
+        id: String,
+        type: KClass<T>,
+    ): T? {
         return cache[id]?.let { result: Any ->
             type.cast(result)
         }
@@ -24,7 +26,7 @@ class DefaultInMemoryReplResultsHolder : InMemoryReplResultsHolder {
         // Make a reasonable attempt at avoiding conflicts with
         // user-provided ids.
         var newId = "generated-${Random.nextInt()}"
-        while(cache[newId] != null) {
+        while (cache[newId] != null) {
             newId = "generated-${Random.nextInt()}"
         }
         return newId
@@ -36,7 +38,10 @@ class DefaultInMemoryReplResultsHolder : InMemoryReplResultsHolder {
         }
     }
 
-    override fun setReplResult(id: String, result: Any?) {
+    override fun setReplResult(
+        id: String,
+        result: Any?,
+    ) {
         cache[id] = result
     }
 

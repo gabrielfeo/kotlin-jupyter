@@ -1,6 +1,5 @@
 package org.jetbrains.kotlinx.jupyter.repl.creating
 
-import java.io.File
 import org.jetbrains.kotlinx.jupyter.api.JupyterClientType
 import org.jetbrains.kotlinx.jupyter.api.KernelLoggerFactory
 import org.jetbrains.kotlinx.jupyter.api.SessionOptions
@@ -21,6 +20,7 @@ import org.jetbrains.kotlinx.jupyter.repl.MavenRepositoryCoordinates
 import org.jetbrains.kotlinx.jupyter.repl.ReplOptions
 import org.jetbrains.kotlinx.jupyter.repl.ReplRuntimeProperties
 import org.jetbrains.kotlinx.jupyter.repl.embedded.InMemoryReplResultsHolder
+import java.io.File
 
 abstract class LazilyConstructibleReplComponentsProviderImpl : LazilyConstructibleReplComponentsProvider {
     override val loggerFactory: KernelLoggerFactory by lazy { provideLoggerFactory() }
