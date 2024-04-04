@@ -124,5 +124,6 @@ abstract class ReplComponentsProviderBase : LazilyConstructibleReplComponentsPro
     }
 
     override fun provideLibraryReferenceParser(): LibraryReferenceParser = LibraryReferenceParserImpl(libraryInfoCache)
+
     override fun provideInMemoryReplResultsHolder(): InMemoryReplResultsHolder = NoOpInMemoryReplResultsHolder
 }
