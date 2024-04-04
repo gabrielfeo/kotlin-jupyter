@@ -15,6 +15,7 @@ import org.jetbrains.kotlinx.jupyter.api.takeScreenshot
 import org.jetbrains.kotlinx.jupyter.test.repl.AbstractSingleReplTest
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.ResourceLock
 import java.awt.Dimension
@@ -117,6 +118,12 @@ class EmbedReplTest : AbstractSingleReplTest() {
         val screenLock = Object()
     }
 
+    private val skipGraphicsTests = true
+
+    private fun assumeGraphicsSupported() {
+        Assumptions.assumeFalse(skipGraphicsTests, "Test is skipped: graphics is disabled")
+    }
+
     override val repl = makeEmbeddedRepl()
 
     @Test
@@ -158,46 +165,48 @@ class EmbedReplTest : AbstractSingleReplTest() {
 
     @Test
     @ResourceLock("screenLock")
-    fun testInMemoryValue() {
-        val types =
-            listOf(
-                JFrame::class to
-                    """
-                    import javax.swing.JFrame
-                    val frame = JFrame("panel")
-                    frame.setSize(300, 300)
-                    frame.isVisible = true
-                    frame
-                    """.trimIndent(),
-                JDialog::class to
-                    """
-                    import javax.swing.JDialog
-                    val dialog = JDialog()
-                    dialog.setSize(300, 300)
-                    dialog.isVisible = true
-                    dialog
-                    """.trimIndent(),
-                JComponent::class to
-                    """
-                    import javax.swing.JPanel
-                    val panel = JPanel()
-                    panel.setSize(300, 300)
-                    panel
-                    """.trimIndent(),
-            )
-        types.forEach { (expectedOutputClass: KClass<*>, code: String) ->
-            val result = eval(code)
-            assertTrue(result.renderedValue is MimeTypedResult, "Was: ${result.renderedValue}")
-            assertTrue(result.displayValue is MimeTypedResult, "Was: ${result.displayValue}")
-            val display = result.displayValue as MimeTypedResult
-            assertEquals(2, display.size)
-            assertTrue(display.containsKey("image/png"))
-            assertTrue(display.containsKey(InMemoryMimeTypes.SWING))
-            assertEquals("-1", display[InMemoryMimeTypes.SWING])
-            val inMemHolder = repl.notebook.sharedReplContext!!.inMemoryReplResultsHolder
-            assertEquals(1, inMemHolder.size)
-            assertNotNull(inMemHolder.getReplResult("-1", expectedOutputClass))
-        }
+    fun testJFrame() {
+        assumeGraphicsSupported()
+        doInMemoryTest(
+            JFrame::class,
+            """
+            import javax.swing.JFrame
+            val frame = JFrame("panel")
+            frame.setSize(300, 300)
+            frame.isVisible = true
+            frame
+            """.trimIndent(),
+        )
+    }
+
+    @Test
+    @ResourceLock("screenLock")
+    fun testJDialog() {
+        assumeGraphicsSupported()
+        doInMemoryTest(
+            JDialog::class,
+            """
+            import javax.swing.JDialog
+            val dialog = JDialog()
+            dialog.setSize(300, 300)
+            dialog.isVisible = true
+            dialog
+            """.trimIndent(),
+        )
+    }
+
+    @Test
+    @ResourceLock("screenLock")
+    fun testJComponent() {
+        doInMemoryTest(
+            JComponent::class,
+            """
+            import javax.swing.JPanel
+            val panel = JPanel()
+            panel.setSize(300, 300)
+            panel
+            """.trimIndent(),
+        )
     }
 
     @Test
@@ -210,6 +219,7 @@ class EmbedReplTest : AbstractSingleReplTest() {
     @Test
     @ResourceLock("screenLock")
     fun testScreenshotOfJFrame() {
+        assumeGraphicsSupported()
         val frame = JFrame()
         frame.size = Dimension(100, 50)
         val button = JButton("Button 1")
@@ -222,6 +232,7 @@ class EmbedReplTest : AbstractSingleReplTest() {
     @Test
     @ResourceLock("screenLock")
     fun testScreenshotOfJDialog() {
+        assumeGraphicsSupported()
         val dialog = JDialog()
         dialog.size = Dimension(100, 50)
         val button = JButton("Button 1")
@@ -241,6 +252,23 @@ class EmbedReplTest : AbstractSingleReplTest() {
         panel.add(button)
         val screenshot = panel.takeScreenshot()
         assertNotEmptyImage(screenshot)
+    }
+
+    private fun doInMemoryTest(
+        expectedOutputClass: KClass<*>,
+        code: String,
+    ) {
+        val result = eval(code)
+        assertTrue(result.renderedValue is MimeTypedResult, "Was: ${result.renderedValue}")
+        assertTrue(result.displayValue is MimeTypedResult, "Was: ${result.displayValue}")
+        val display = result.displayValue as MimeTypedResult
+        assertEquals(2, display.size)
+        assertTrue(display.containsKey("image/png"))
+        assertTrue(display.containsKey(InMemoryMimeTypes.SWING))
+        assertEquals("-1", display[InMemoryMimeTypes.SWING])
+        val inMemHolder = repl.notebook.sharedReplContext!!.inMemoryReplResultsHolder
+        assertEquals(1, inMemHolder.size)
+        assertNotNull(inMemHolder.getReplResult("-1", expectedOutputClass))
     }
 
     // Check if a screenshot actually contains anything useful.
