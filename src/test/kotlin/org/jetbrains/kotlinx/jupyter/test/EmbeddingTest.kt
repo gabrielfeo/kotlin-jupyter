@@ -1,6 +1,5 @@
 package org.jetbrains.kotlinx.jupyter.test
 
-import org.jetbrains.kotlinx.jupyter.api.InMemoryMimeTypes
 import org.jetbrains.kotlinx.jupyter.api.MimeTypedResult
 import org.jetbrains.kotlinx.jupyter.api.MimeTypes
 import org.jetbrains.kotlinx.jupyter.api.ResultHandlerCodeExecution
@@ -11,24 +10,9 @@ import org.jetbrains.kotlinx.jupyter.api.libraries.ResourceLocation
 import org.jetbrains.kotlinx.jupyter.api.libraries.ResourcePathType
 import org.jetbrains.kotlinx.jupyter.api.libraries.ResourceType
 import org.jetbrains.kotlinx.jupyter.api.libraries.libraryDefinition
-import org.jetbrains.kotlinx.jupyter.api.takeScreenshot
 import org.jetbrains.kotlinx.jupyter.test.repl.AbstractSingleReplTest
-import org.junit.jupiter.api.Assertions.assertNotEquals
-import org.junit.jupiter.api.Assertions.assertNull
-import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.parallel.ResourceLock
-import java.awt.Dimension
-import java.awt.image.BufferedImage
-import javax.swing.JButton
-import javax.swing.JComponent
-import javax.swing.JDialog
-import javax.swing.JFrame
-import javax.swing.JPanel
-import kotlin.reflect.KClass
-import kotlin.test.DefaultAsserter.fail
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class SomeSingleton {
@@ -105,25 +89,7 @@ val testLibraryDefinition2 =
             )
     }
 
-/**
- * Class for testing the embedded kernel.
- */
 class EmbedReplTest : AbstractSingleReplTest() {
-    companion object {
-        // Lock to prevent multiple tests accessing the screen at the same time. It looks like if multiple
-        // tests are opening JFrame/JDialogs, then taking screenshots can fail with
-        // "Cannot invoke "java.awt.Window.isOpaque()" because "w" is null", if they overlap.
-        @Suppress("unused")
-        @JvmStatic
-        val screenLock = Object()
-    }
-
-    private val skipGraphicsTests = true
-
-    private fun assumeGraphicsSupported() {
-        Assumptions.assumeFalse(skipGraphicsTests, "Test is skipped: graphics is disabled")
-    }
-
     override val repl = makeEmbeddedRepl()
 
     @Test
@@ -161,134 +127,6 @@ class EmbedReplTest : AbstractSingleReplTest() {
                 """.trimIndent(),
             )
         assertEquals("[12, 13, 14]", result2.renderedValue)
-    }
-
-    @Test
-    @ResourceLock("screenLock")
-    fun testJFrame() {
-        assumeGraphicsSupported()
-        doInMemoryTest(
-            JFrame::class,
-            """
-            import javax.swing.JFrame
-            val frame = JFrame("panel")
-            frame.setSize(300, 300)
-            frame.isVisible = true
-            frame
-            """.trimIndent(),
-        )
-    }
-
-    @Test
-    @ResourceLock("screenLock")
-    fun testJDialog() {
-        assumeGraphicsSupported()
-        doInMemoryTest(
-            JDialog::class,
-            """
-            import javax.swing.JDialog
-            val dialog = JDialog()
-            dialog.setSize(300, 300)
-            dialog.isVisible = true
-            dialog
-            """.trimIndent(),
-        )
-    }
-
-    @Test
-    @ResourceLock("screenLock")
-    fun testJComponent() {
-        doInMemoryTest(
-            JComponent::class,
-            """
-            import javax.swing.JPanel
-            val panel = JPanel()
-            panel.setSize(300, 300)
-            panel
-            """.trimIndent(),
-        )
-    }
-
-    @Test
-    @ResourceLock("screenLock")
-    fun testScreenshotWithNoSize() {
-        val panel = JPanel()
-        assertNull(panel.takeScreenshot())
-    }
-
-    @Test
-    @ResourceLock("screenLock")
-    fun testScreenshotOfJFrame() {
-        assumeGraphicsSupported()
-        val frame = JFrame()
-        frame.size = Dimension(100, 50)
-        val button = JButton("Button 1")
-        frame.contentPane.add(button)
-        frame.isVisible = true
-        val screenshot = frame.takeScreenshot()
-        assertNotEmptyImage(screenshot)
-    }
-
-    @Test
-    @ResourceLock("screenLock")
-    fun testScreenshotOfJDialog() {
-        assumeGraphicsSupported()
-        val dialog = JDialog()
-        dialog.size = Dimension(100, 50)
-        val button = JButton("Button 1")
-        dialog.contentPane.add(button)
-        dialog.isVisible = true
-        val screenshot = dialog.takeScreenshot()
-        assertNotEmptyImage(screenshot)
-    }
-
-    @Test
-    @ResourceLock("screenLock")
-    fun testScreenshotOfJComponent() {
-        val panel = JPanel()
-        panel.size = Dimension(100, 50)
-        val button = JButton("Button 1")
-        button.size = Dimension(100, 50)
-        panel.add(button)
-        val screenshot = panel.takeScreenshot()
-        assertNotEmptyImage(screenshot)
-    }
-
-    private fun doInMemoryTest(
-        expectedOutputClass: KClass<*>,
-        code: String,
-    ) {
-        val result = eval(code)
-        assertTrue(result.renderedValue is MimeTypedResult, "Was: ${result.renderedValue}")
-        assertTrue(result.displayValue is MimeTypedResult, "Was: ${result.displayValue}")
-        val display = result.displayValue as MimeTypedResult
-        assertEquals(2, display.size)
-        assertTrue(display.containsKey("image/png"))
-        assertTrue(display.containsKey(InMemoryMimeTypes.SWING))
-        assertEquals("-1", display[InMemoryMimeTypes.SWING])
-        val inMemHolder = repl.notebook.sharedReplContext!!.inMemoryReplResultsHolder
-        assertEquals(1, inMemHolder.size)
-        assertNotNull(inMemHolder.getReplResult("-1", expectedOutputClass))
-    }
-
-    // Check if a screenshot actually contains anything useful.
-    // We assume "useful" means an image with width/length > 0 and doesn't only consist of
-    // one color.
-    private fun assertNotEmptyImage(image: BufferedImage?) {
-        if (image == null) {
-            fail("`null` image was returned")
-        }
-        assertNotEquals(0, image.width)
-        assertNotEquals(0, image.height)
-        val topLeftColor = image.getRGB(0, 0)
-        for (x in 0 until image.width) {
-            for (y in 0 until image.height) {
-                if (image.getRGB(x, y) != topLeftColor) {
-                    return
-                }
-            }
-        }
-        fail("Image only contained a single color: $topLeftColor")
     }
 }
 

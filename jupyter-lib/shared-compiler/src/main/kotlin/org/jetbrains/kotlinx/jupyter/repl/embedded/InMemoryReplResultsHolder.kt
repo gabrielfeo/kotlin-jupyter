@@ -1,7 +1,6 @@
 package org.jetbrains.kotlinx.jupyter.repl.embedded
 
 import org.jetbrains.kotlinx.jupyter.api.DisplayResult
-import kotlin.reflect.KClass
 
 /**
  * Interface for classes that can store in-memory results from the REPL.
@@ -21,12 +20,9 @@ interface InMemoryReplResultsHolder {
     /**
      * Returns the REPL result for a given id or `null` if no result exists or `null` was the result.
      * @param id unique id for the given REPL result. Normally this is [DisplayResult.id].
-     * @param type type of return value. `Any::class` can be used if it is uncertain what type it might be.
+     * @return the repl result associated with the given [id] or `null` if no result was found.
      */
-    fun <T : Any> getReplResult(
-        id: String,
-        type: KClass<T>,
-    ): T?
+    fun getReplResult(id: String): Any?
 
     /**
      * Add a REPL result without an ID. An ID will be auto-generated and returned.
@@ -57,8 +53,3 @@ interface InMemoryReplResultsHolder {
      */
     val size: Int
 }
-
-/**
- * Helper method to easily cast the return type using generics.
- */
-inline fun <reified T : Any> InMemoryReplResultsHolder.getReplResult(id: String) = getReplResult(id, T::class)

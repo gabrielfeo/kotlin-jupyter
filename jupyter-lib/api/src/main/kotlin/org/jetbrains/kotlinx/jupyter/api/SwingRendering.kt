@@ -43,7 +43,7 @@ fun JComponent.takeScreenshot(): BufferedImage? {
             dispose()
         }
         return image
-    } catch (ignore: Exception) {
+    } catch (ignore: Throwable) {
         // In case something goes wrong, do not crash the application as fallback
         // images are just nice to have, not required.
         return null

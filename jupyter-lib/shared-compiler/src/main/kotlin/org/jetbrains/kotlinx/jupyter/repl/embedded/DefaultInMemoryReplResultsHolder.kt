@@ -1,8 +1,6 @@
 package org.jetbrains.kotlinx.jupyter.repl.embedded
 
 import kotlin.random.Random
-import kotlin.reflect.KClass
-import kotlin.reflect.cast
 
 /**
  * Default implementation that just stores in-memory values in a [HashMap]
@@ -13,13 +11,8 @@ import kotlin.reflect.cast
 class DefaultInMemoryReplResultsHolder : InMemoryReplResultsHolder {
     private val cache = mutableMapOf<String, Any?>()
 
-    override fun <T : Any> getReplResult(
-        id: String,
-        type: KClass<T>,
-    ): T? {
-        return cache[id]?.let { result: Any ->
-            type.cast(result)
-        }
+    override fun getReplResult(id: String): Any? {
+        return cache[id]
     }
 
     private fun nextRandomId(): String {

@@ -5,6 +5,7 @@ import kotlinx.serialization.json.JsonObject
 import org.jetbrains.kotlinx.jupyter.api.KernelLoggerFactory
 import org.jetbrains.kotlinx.jupyter.api.arrayRenderer
 import org.jetbrains.kotlinx.jupyter.api.bufferedImageRenderer
+import org.jetbrains.kotlinx.jupyter.api.getLogger
 import org.jetbrains.kotlinx.jupyter.api.swingJComponentInMemoryRenderer
 import org.jetbrains.kotlinx.jupyter.api.swingJDialogInMemoryRenderer
 import org.jetbrains.kotlinx.jupyter.api.swingJFrameInMemoryRenderer
@@ -145,7 +146,7 @@ class HomeDirLibraryDescriptorsProvider(
     private val homeDir: File?,
     private val libraryDescriptorsManager: LibraryDescriptorsManager,
 ) : ResourceLibraryDescriptorsProvider(loggerFactory) {
-    private val logger = loggerFactory.getLogger(this::class.java)
+    private val logger = loggerFactory.getLogger(this::class)
 
     override fun getDescriptors(): Map<String, LibraryDescriptor> {
         return if (homeDir == null) {

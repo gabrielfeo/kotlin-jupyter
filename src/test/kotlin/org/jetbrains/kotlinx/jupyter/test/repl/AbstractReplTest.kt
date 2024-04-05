@@ -16,7 +16,6 @@ import org.jetbrains.kotlinx.jupyter.repl.ReplForJupyter
 import org.jetbrains.kotlinx.jupyter.repl.creating.ReplComponentsProviderBase
 import org.jetbrains.kotlinx.jupyter.repl.creating.createRepl
 import org.jetbrains.kotlinx.jupyter.repl.embedded.DefaultInMemoryReplResultsHolder
-import org.jetbrains.kotlinx.jupyter.repl.embedded.NoOpInMemoryReplResultsHolder
 import org.jetbrains.kotlinx.jupyter.repl.impl.ReplForJupyterImpl
 import org.jetbrains.kotlinx.jupyter.repl.notebook.MutableNotebook
 import org.jetbrains.kotlinx.jupyter.test.assertSuccess
@@ -117,8 +116,6 @@ abstract class AbstractReplTest {
                 override fun provideCommunicationFacility() = CommunicationFacilityMock
 
                 override fun provideDebugPort(): Int? = null
-
-                override fun provideInMemoryReplResultsHolder() = NoOpInMemoryReplResultsHolder
             }
         return factory.createRepl()
     }

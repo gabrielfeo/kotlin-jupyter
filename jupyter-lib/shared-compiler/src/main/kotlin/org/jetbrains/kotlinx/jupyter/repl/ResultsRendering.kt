@@ -15,22 +15,21 @@ fun renderValue(
     id: String?,
 ): DisplayResult? {
     val inMemoryReplResultsHolder = notebook.sharedReplContext!!.inMemoryReplResultsHolder
-
+    val renderedValue = notebook.renderersProcessor.renderValue(executor, value)
     val rendered =
-        notebook.renderersProcessor.renderValue(executor, value)?.let {
-            if (it is InMemoryMimeTypedResult) {
-                val inMemoryValue = it.inMemoryOutput.result
-                val displayId =
-                    if (id != null) {
-                        inMemoryReplResultsHolder.setReplResult(id, inMemoryValue)
-                        id
-                    } else {
-                        inMemoryReplResultsHolder.addReplResult(inMemoryValue)
-                    }
-                return MimeTypedResult(mimeData = it.fallbackResult + Pair(it.inMemoryOutput.mimeType, displayId))
-            } else {
-                it
-            }
+        if (renderedValue is InMemoryMimeTypedResult) {
+            // Strip out in-memory values and put them into the InMemoryReplResultsHolder
+            val inMemoryValue = renderedValue.inMemoryOutput.result
+            val displayId =
+                if (id != null) {
+                    inMemoryReplResultsHolder.setReplResult(id, inMemoryValue)
+                    id
+                } else {
+                    inMemoryReplResultsHolder.addReplResult(inMemoryValue)
+                }
+            MimeTypedResult(mimeData = renderedValue.fallbackResult + Pair(renderedValue.inMemoryOutput.mimeType, displayId))
+        } else {
+            renderedValue
         }
     return notebook.postRender(rendered)
 }

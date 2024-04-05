@@ -63,7 +63,7 @@ val arrayRenderer =
         }
     }
 
-private fun createInMemoryMimeTypedResult(
+private fun createSwingInMemoryMimeTypedResult(
     fallbackImage: BufferedImage?,
     swingResult: Any,
 ): InMemoryMimeTypedResult {
@@ -86,7 +86,7 @@ private fun createInMemoryMimeTypedResult(
 val swingJFrameInMemoryRenderer =
     createRenderer<JFrame> { frame: JFrame ->
         val fallbackImage: BufferedImage? = frame.takeScreenshot()
-        createInMemoryMimeTypedResult(fallbackImage, frame)
+        createSwingInMemoryMimeTypedResult(fallbackImage, frame)
     }
 
 /**
@@ -96,7 +96,7 @@ val swingJFrameInMemoryRenderer =
 val swingJDialogInMemoryRenderer =
     createRenderer<JDialog> { dialog: JDialog ->
         val fallbackImage: BufferedImage? = dialog.takeScreenshot()
-        createInMemoryMimeTypedResult(fallbackImage, dialog)
+        createSwingInMemoryMimeTypedResult(fallbackImage, dialog)
     }
 
 /**
@@ -106,5 +106,5 @@ val swingJDialogInMemoryRenderer =
 val swingJComponentInMemoryRenderer: RendererFieldHandler =
     createRenderer<JComponent> { component: JComponent ->
         val fallbackImage: BufferedImage? = component.takeScreenshot()
-        createInMemoryMimeTypedResult(fallbackImage, component)
+        createSwingInMemoryMimeTypedResult(fallbackImage, component)
     }

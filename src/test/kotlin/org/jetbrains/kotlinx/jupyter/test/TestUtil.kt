@@ -426,3 +426,12 @@ fun EvalResultEx.assertSuccess() {
         is EvalResultEx.Success -> {}
     }
 }
+
+fun Any?.shouldBeInstanceOf(kclass: KClass<*>) {
+    if (this == null) {
+        throw AssertionError("Expected instance of ${kclass.qualifiedName}, but got null")
+    }
+    if (!kclass.isInstance(this)) {
+        throw AssertionError("Expected instance of ${kclass.qualifiedName}, but got ${this::class.qualifiedName}")
+    }
+}

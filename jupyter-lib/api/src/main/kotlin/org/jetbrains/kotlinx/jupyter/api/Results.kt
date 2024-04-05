@@ -150,7 +150,7 @@ fun MutableJsonObject.setDisplayId(
  * Check if the JSON object contains a `display_id` entry.
  */
 fun JsonObject.containsDisplayId(id: String): Boolean {
-    val transient = get("transient")?.let { if (it is JsonObject) it else null }
+    val transient: JsonObject? = get("transient") as? JsonObject
     return (transient?.get("display_id") as? JsonPrimitive)?.content == id
 }
 
